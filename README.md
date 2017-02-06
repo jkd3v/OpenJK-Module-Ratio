@@ -1,4 +1,4 @@
-# OpenJK-Module
+# OpenJK-Module-Ratio
 [OpenJK-MPP](https://jkd3v/OpenJK-MPP)'s ratio module.
 
 ## Usage

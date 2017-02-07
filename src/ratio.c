@@ -88,27 +88,36 @@ __declspec(dllexport) int mppPostMain(int cmd, int arg0, int arg1, int arg2, int
 				sys->mppRawTextCalculateDraw(sys->va("Ratio: %.2f (^%c%s%i^7)", ratio, (diff < 0 ? '1':(diff>0)?'2':'3'), (diff>=0?"+":""), diff), cvar_ratioPosX.integer, cvar_ratioPosY.integer, cvar_ratioSize.value, 1, 0);
 			}
 			if (currentTeam != TEAM_SPECTATOR && cvar_ratioStats.integer != 0) {
+				int trickedIndex;
+				if (sys->cg->clientNum > 47) trickedIndex = 3;
+				if (sys->cg->clientNum > 31) trickedIndex = 2;
+				if (sys->cg->clientNum > 15) trickedIndex = 1;
+				else trickedIndex = 0;
 				// Draw the stats for each players
 				for (int i = 0; i < sys->cgs->maxclients; i++) {
-					centity_t *cent = sys->cg_entities[i];
-					if (i != sys->snap->ps.clientNum && sys->currentValid[i] && !(cent->currentState.eFlags & EF_DEAD) && !sys->mppIsPlayerAlly(i))
-					{
-						// Center the text
-						char	stats[15], 
-								statsSpaces[MAX_NAME_LENGTH], 
+					centity_t *cent = sys->mppIsPlayerEntity(i);
+					if (cent) {
+						int *trick = &cent->currentState.trickedentindex;
+						trick += trickedIndex;
+						if (i != sys->snap->ps.clientNum && !(cent->currentState.eFlags & EF_DEAD) && !(*trick & (1 << (sys->cg->clientNum % 16))) && !sys->mppIsPlayerAlly(i))
+						{
+							// Center the text
+							char	stats[15],
+								statsSpaces[MAX_NAME_LENGTH],
 								nameSpaces[MAX_NAME_LENGTH];
-						int		spacesDiff = ((int)(sys->Com_Sprintf(stats, 15, "^2%i^7/^1%i", playerStats[i].killedByMe, playerStats[i].killedMe) - 6 - strlen(sys->clientInfo[i].name))) / 2;
-						int j;
-						for (j = 0; j < -spacesDiff && j < MAX_NAME_LENGTH; j++) {
-							statsSpaces[j] = ' ';
-						}
-						statsSpaces[j] = '\0';
-						for (j = 0; j < spacesDiff && j < MAX_NAME_LENGTH; j++) {
-							nameSpaces[j] = ' ';
-						}
-						nameSpaces[j] = '\0';
+							int		spacesDiff = ((int)(sys->Com_Sprintf(stats, 15, "^2%i^7/^1%i", playerStats[i].killedByMe, playerStats[i].killedMe) - 6 - strlen(sys->clientInfo[i].name))) / 2;
+							int j;
+							for (j = 0; j < -spacesDiff && j < MAX_NAME_LENGTH; j++) {
+								statsSpaces[j] = ' ';
+							}
+							statsSpaces[j] = '\0';
+							for (j = 0; j < spacesDiff && j < MAX_NAME_LENGTH; j++) {
+								nameSpaces[j] = ' ';
+							}
+							nameSpaces[j] = '\0';
 
-						sys->mppRenderTextAtEntity(i, sys->va("%s%s\n%s%s", nameSpaces, sys->clientInfo[i].name, statsSpaces, stats), qtrue, qfalse);
+							sys->mppRenderTextAtEntity(i, sys->va("%s%s\n%s%s", nameSpaces, sys->clientInfo[i].name, statsSpaces, stats), qtrue, qfalse);
+						}
 					}
 				}
 			}

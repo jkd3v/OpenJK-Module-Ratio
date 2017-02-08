@@ -59,7 +59,7 @@ __declspec(dllexport) void mpp(MultiPlugin_t *pPlugin)
 	trap = sys->System;
 
 	trap->Cvar.Register(&cvar_ratioDraw, "ratio_draw", "1", CVAR_ARCHIVE);
-	trap->Cvar.Register(&cvar_ratioPosX, "ratio_positionX", "590", CVAR_ARCHIVE);
+	trap->Cvar.Register(&cvar_ratioPosX, "ratio_positionX", "638", CVAR_ARCHIVE);
 	trap->Cvar.Register(&cvar_ratioPosY, "ratio_positionY", "150", CVAR_ARCHIVE);
 	trap->Cvar.Register(&cvar_ratioSize, "ratio_size", "0.7", CVAR_ARCHIVE);
 	trap->Cvar.Register(&cvar_ratioStats, "ratio_drawStats", "1", CVAR_ARCHIVE);
@@ -85,7 +85,7 @@ __declspec(dllexport) int mppPostMain(int cmd, int arg0, int arg1, int arg2, int
 				// Draw the ratio
 				int diff = sys->snap->ps.persistant[PERS_SCORE] - sys->snap->ps.persistant[PERS_KILLED] + nbSuicides;
 				float ratio = calculateRatio(sys->snap->ps.persistant[PERS_SCORE], sys->snap->ps.persistant[PERS_KILLED] - nbSuicides);
-				sys->mppRawTextCalculateDraw(sys->va("Ratio: %.2f (^%c%s%i^7)", ratio, (diff < 0 ? '1':(diff>0)?'2':'3'), (diff>=0?"+":""), diff), cvar_ratioPosX.integer, cvar_ratioPosY.integer, cvar_ratioSize.value, 1, 0);
+				sys->mppRawTextCalculateDraw(sys->va("Ratio: %.2f (^%c%s%i^7)", ratio, (diff < 0 ? '1':(diff>0)?'2':'3'), (diff>=0?"+":""), diff), cvar_ratioPosX.integer, cvar_ratioPosY.integer, cvar_ratioSize.value, 1, 0, TopRight);
 			}
 			if (currentTeam != TEAM_SPECTATOR && cvar_ratioStats.integer != 0) {
 				int trickedIndex;
@@ -95,11 +95,12 @@ __declspec(dllexport) int mppPostMain(int cmd, int arg0, int arg1, int arg2, int
 				else trickedIndex = 0;
 				// Draw the stats for each players
 				for (int i = 0; i < sys->cgs->maxclients; i++) {
+					if (i == sys->cg->clientNum || sys->mppIsPlayerAlly(i)) continue;
 					centity_t *cent = sys->mppIsPlayerEntity(i);
-					if (cent) {
+					if (cent && !(cent->currentState.eFlags & EF_DEAD)) {
 						int *trick = &cent->currentState.trickedentindex;
 						trick += trickedIndex;
-						if (i != sys->snap->ps.clientNum && !(cent->currentState.eFlags & EF_DEAD) && !(*trick & (1 << (sys->cg->clientNum % 16))) && !sys->mppIsPlayerAlly(i))
+						if (!(*trick & (1 << (sys->cg->clientNum % 16))))
 						{
 							// Center the text
 							char	stats[15],
@@ -116,7 +117,7 @@ __declspec(dllexport) int mppPostMain(int cmd, int arg0, int arg1, int arg2, int
 							}
 							nameSpaces[j] = '\0';
 
-							sys->mppRenderTextAtEntity(i, sys->va("%s%s\n%s%s", nameSpaces, sys->clientInfo[i].name, statsSpaces, stats), qtrue, qfalse);
+							sys->mppRenderTextAtEntity(i, sys->va("%s%s\n%s%s", nameSpaces, sys->clientInfo[i].name, statsSpaces, stats), qtrue, qfalse, MiddleCenter);
 						}
 					}
 				}

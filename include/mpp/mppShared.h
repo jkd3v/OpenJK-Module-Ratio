@@ -1,3 +1,5 @@
+#ifndef __MPP_SHARED_H__
+#define __MPP_SHARED_H__
 
 /**************************************************
 * MultiPlugin++ by Deathspike
@@ -29,6 +31,12 @@ typedef struct cmd_function_s
 	xcommand_t				function;
 	completionFunc_t		complete;
 } cmd_t;
+
+typedef enum {
+	TopLeft, TopCenter, TopRight,
+	MiddleLeft, MiddleCenter, MiddleRight,
+	BottomLeft, BottomCenter, BottomRight,
+} TextAlign;
 
 /**************************************************
 * MultiPlugin_t
@@ -74,11 +82,11 @@ typedef struct {
 	centity_t		*(*mppIsPlayerEntity)(int iIndex);
 	cmd_t			*(*mppLocateCommand)(char *zName);
 	cvar_t			*(*mppLocateCvar)(char *zName);
-	void(*mppRawTextCalculateDraw)(char *lpString, float x, float y, float fScale, int iFont, int iLines);
+	void(*mppRawTextCalculateDraw)(char *lpString, float x, float y, float fScale, int iFont, int iLines, TextAlign align);
 	int(*mppRawTextCalculateHeight)(int iFont, float fScale);
 	int(*mppRawTextCalculateWidth)(char *lpString, int iFont, float fScale);
-	int(*mppRenderTextAtEntity)(int iIndex, char *lpString, qboolean bCheckWall, qboolean bPersistant);
-	int(*mppRenderTextAtVector)(vec3_t origin, char *lpString, qboolean bCheckWall, qboolean bPersistant);
+	int(*mppRenderTextAtEntity)(int iIndex, char *lpString, qboolean bCheckWall, qboolean bPersistant, TextAlign align);
+	int(*mppRenderTextAtVector)(vec3_t origin, char *lpString, qboolean bCheckWall, qboolean bPersistant, TextAlign align);
 	void(*mppRenderTextClear)(int iIndex);
 	void(*mppRenderTextFinalize)(void);
 	qboolean(*mppRenderTextVisible)(vec3_t origin, qboolean checkWalls);
@@ -442,3 +450,5 @@ typedef struct {
 	} S;
 
 } MultiSystem_t;
+
+#endif //__MPP_SHARED_H__

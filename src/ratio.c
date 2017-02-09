@@ -10,7 +10,7 @@ static vmCvar_t cvar_ratioPosY;
 static vmCvar_t cvar_ratioSize;
 static vmCvar_t cvar_ratioStats;
 
-static int savedTime = -1;
+static int savedTime = -1;	
 static int currentTeam = TEAM_SPECTATOR;
 static unsigned int nbSuicides = 0;
 static qboolean isDead[MAX_CLIENTS];
@@ -116,7 +116,6 @@ __declspec(dllexport) int mppPostMain(int cmd, int arg0, int arg1, int arg2, int
 								nameSpaces[j] = ' ';
 							}
 							nameSpaces[j] = '\0';
-
 							sys->mppRenderTextAtEntity(i, sys->va("%s%s\n%s%s", nameSpaces, sys->clientInfo[i].name, statsSpaces, stats), qtrue, qfalse, MiddleCenter);
 						}
 					}
@@ -135,7 +134,6 @@ __declspec(dllexport) int mppPostSystem(int *args) {
 	{
 		case CG_GETGAMESTATE:
 		{ // The server inform us something changed
-			
 			if (currentTeam != sys->clientInfo[sys->cg->clientNum].team) {
 				// We changed team
 				resetRatio();
